@@ -73,10 +73,10 @@ async def make_pair(message):
             SELECT * FROM users
         """)
         users = cur.fetchall()
-        if len(users) == 0:
-            return
         if len(users) % 2:
             users = users[:-1]
+        if len(users) == 0:
+            return
         for usr in users:
             cur.execute("DELETE FROM users WHERE id = %s", (usr[0],))
         connection.commit()
