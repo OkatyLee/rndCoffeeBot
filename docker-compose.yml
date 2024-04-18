@@ -1,0 +1,52 @@
+
+services:
+  bot:
+    build: .
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    command: [ "python", "bot.py" ]
+    depends_on:
+      - postgres
+    networks:
+      - postgres
+
+  postgres:
+    container_name: postgres_container
+    image: 'postgres:latest'
+    environment:
+      POSTGRES_USER: 'postgres'
+      POSTGRES_PASSWORD: 'postgres'
+      POSTGRES_DB: 'botdb'
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - botdb-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d botdb" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 4G
+    networks:
+      - postgres
+
+
+
+
+volumes:
+  botdb-data:
+
+
+
+networks:
+  postgres:
+    driver: bridge
